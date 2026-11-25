@@ -12,7 +12,6 @@ export default function ProductListClient({
 }: ProductListClientProps) {
   // creo un estado products, con su funcion para cambiarlo setProducts
   // del tipo Product[] que empieza valiendo initialProducts
-
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [category, setCategory] = useState<string>("");
   const [minPrice, setMinPrice] = useState<number | null>(null);
@@ -23,9 +22,15 @@ export default function ProductListClient({
     const text = search.toLowerCase().trim();
     return products.filter(
       (product) =>
-        product.title.toLowerCase().includes(text),
+        product.title.toLowerCase().includes(text) &&
+        (category === "" || product.category === category),
     );
-  }, [search, products]);
+  }, [search, products, category]);
+
+  const categories = useMemo(
+    () => [...new Set(products.map((p) => p.category))].sort(),
+    [products],
+  );
 
   return (
     <section>
@@ -35,6 +40,20 @@ export default function ProductListClient({
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+
+      <button onClick={() => setCategory("")}>
+        {" "}
+        Todas las categorías
+      </button>
+
+      <ul>
+        {categories.map((cat) => (
+          <li key={cat}>
+            <button onClick={() => setCategory(cat)}>{cat}</button>
+          </li>
+        ))}
+      </ul>
+
       <ul>
         {filteredProducts.map((product) => (
           <li key={product.id}>
